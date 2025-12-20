@@ -21,7 +21,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install mlflow pandas numpy scikit-learn
+          pip install mlflow pandas numpy scikit-learn dagshub
 
       - name: Run MLflow Project
         run: |
