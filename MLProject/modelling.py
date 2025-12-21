@@ -27,7 +27,7 @@ def load_data():
     return X_train, y_train, X_test, y_test
 
 
-def train_basic_model(X_train, y_train, X_test, y_test):
+def train_basic(X_train, y_train, X_test, y_test):
     mlflow.autolog()
     model = RandomForestClassifier(
             n_estimators=100,
@@ -41,4 +41,4 @@ def train_basic_model(X_train, y_train, X_test, y_test):
 
 if __name__ == "__main__":
     X_train, y_train, X_test, y_test = load_data()
-    train_basic_model(X_train, y_train, X_test, y_test)
+    train_basic(X_train, y_train, X_test, y_test)
