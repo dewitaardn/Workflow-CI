@@ -1,4 +1,6 @@
-name: heart-disease-ml-project
+name: heart-disease-mlflow-project
+
+conda_env: conda.yaml
 
 entry_points:
   main:

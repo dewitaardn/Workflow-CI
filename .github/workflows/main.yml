@@ -1,4 +1,4 @@
-name: MLflow CI Workflow
+name: MLflow CI Training
 
 on:
   workflow_dispatch:
@@ -7,22 +7,22 @@ on:
       - "MLProject/**"
 
 jobs:
-  train-model:
+  train:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
 
-      - name: Install dependencies
-        run: |
-          pip install mlflow pandas numpy scikit-learn dagshub
+    - name: Install MLflow
+      run: |
+        pip install mlflow
 
-      - name: Run MLflow Project
-        run: |
-          mlflow run MLProject --env-manager=local
+    - name: Run MLflow Project
+      run: |
+        mlflow run MLProject
