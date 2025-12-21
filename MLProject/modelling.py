@@ -5,7 +5,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 
 # Load dataset 
-DATA_DIR = "Membangun_model/heartDisease_preprocessing"
+DATA_DIR = "heartDisease_preprocessing"
 
 X_train = pd.read_csv(f"{DATA_DIR}/X_train.csv")
 X_test  = pd.read_csv(f"{DATA_DIR}/X_test.csv")
