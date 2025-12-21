@@ -29,17 +29,15 @@ def load_data():
 
 def train_basic_model(X_train, y_train, X_test, y_test):
     mlflow.autolog()
-
-    with mlflow.start_run():
-        model = RandomForestClassifier(
+    model = RandomForestClassifier(
             n_estimators=100,
             random_state=42,
             n_jobs=-1
         )
-        model.fit(X_train, y_train)
+    model.fit(X_train, y_train)
 
-        y_pred = model.predict(X_test)
-        acc = accuracy_score(y_test, y_pred)
+    y_pred = model.predict(X_test)
+    acc = accuracy_score(y_test, y_pred)
 
 if __name__ == "__main__":
     X_train, y_train, X_test, y_test = load_data()
