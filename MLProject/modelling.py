@@ -1,16 +1,18 @@
+import os
 import pandas as pd
 import mlflow
 import mlflow.sklearn
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 
-# Load dataset 
-DATA_DIR = "heartDisease_preprocessing"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, "heartDisease_preprocessing")
 
-X_train = pd.read_csv(f"{DATA_DIR}/X_train.csv")
-X_test  = pd.read_csv(f"{DATA_DIR}/X_test.csv")
-y_train = pd.read_csv(f"{DATA_DIR}/Y_train.csv").values.ravel()
-y_test  = pd.read_csv(f"{DATA_DIR}/Y_test.csv").values.ravel()
+# load data pakai os
+X_train = pd.read_csv(os.path.join(DATA_DIR, "X_train.csv"))
+X_test  = pd.read_csv(os.path.join(DATA_DIR, "X_test.csv"))
+y_train = pd.read_csv(os.path.join(DATA_DIR, "Y_train.csv")).values.ravel()
+y_test  = pd.read_csv(os.path.join(DATA_DIR, "Y_test.csv")).values.ravel()
 
 # baseline model
 with mlflow.start_run():
