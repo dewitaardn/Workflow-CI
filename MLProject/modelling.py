@@ -2,7 +2,7 @@ import pandas as pd
 import mlflow
 import mlflow.sklearn
 import os
-
+import joblib
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
@@ -36,8 +36,14 @@ def train_basic(X_train, y_train, X_test, y_test):
         )
     model.fit(X_train, y_train)
 
+    os.makedirs("outputs", exist_ok=True)
+    model_path = os.path.join("outputs", "model.pkl")
+    joblib.dump(model, model_path)
+    print(f"[INFO] Model saved to {model_path}")
+
     y_pred = model.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
+    print(f"[INFO] Accuracy: {acc:.4f}")
 
 if __name__ == "__main__":
     X_train, y_train, X_test, y_test = load_data()
