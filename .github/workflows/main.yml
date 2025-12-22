@@ -1,13 +1,15 @@
-name: MLflow CI Training
+name: MLflow CI to Docker Hub
 
 on:
-  workflow_dispatch:
   push:
     paths:
       - "MLProject/**"
 
+env:
+  DOCKER_IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/submission-mlflow
+
 jobs:
-  train:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,16 +23,22 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pandas numpy scikit-learn mlflow
+          pip install pandas numpy scikit-learn mlflow virtualenv
 
-      - name: Run MLflow Project
-        run: |
-          mlflow run MLProject --env-manager=local
-
-      - name: Upload trained model artifact
-        uses: actions/upload-artifact@v4
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
         with:
-          name: trained-model
-          path: MLProject/outputs/model.pkl
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Train Model
+        run: python MLProject/modelling.py
 
+      - name: Build Docker Image
+        run: |
+          LATEST_RUN_ID=$(ls -td mlruns/0/* | head -1 | xargs basename)
+          mlflow models build-docker --model-uri "runs:/$LATEST_RUN_ID/model" --name "$DOCKER_IMAGE_NAME:latest"
+
+      - name: Push Image to Docker Hub
+        run: |
+          docker push $DOCKER_IMAGE_NAME:latest
