@@ -6,7 +6,7 @@ on:
       - "MLProject/**"
 
 env:
-  # Pastikan Secrets DOCKER_USERNAME & DOCKER_PASSWORD sudah ada di Settings GitHub
+
   DOCKER_IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/submission-mlflow
 
 jobs:
