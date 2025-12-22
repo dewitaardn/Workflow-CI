@@ -11,8 +11,8 @@ def load_data():
 
     X_train_path = os.path.join(data_dir, "X_train.csv")
     X_test_path  = os.path.join(data_dir, "X_test.csv")
-    y_train_path = os.path.join(data_dir, "Y_train.csv")
-    y_test_path  = os.path.join(data_dir, "Y_test.csv")
+    y_train_path = os.path.join(data_dir, "y_train.csv")
+    y_test_path  = os.path.join(data_dir, "y_test.csv")
 
     for p in [X_train_path, X_test_path, y_train_path, y_test_path]:
         if not os.path.exists(p):
