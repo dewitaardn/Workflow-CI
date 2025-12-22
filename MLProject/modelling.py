@@ -2,6 +2,7 @@ import pandas as pd
 import mlflow
 import mlflow.sklearn
 import os
+import joblib
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
@@ -11,12 +12,12 @@ def load_data():
 
     X_train_path = os.path.join(data_dir, "X_train.csv")
     X_test_path  = os.path.join(data_dir, "X_test.csv")
-    y_train_path = os.path.join(data_dir, "y_train.csv")
+    y_train_path = os.path.join(data_dir, "y_train.csv") 
     y_test_path  = os.path.join(data_dir, "y_test.csv")
 
     for p in [X_train_path, X_test_path, y_train_path, y_test_path]:
         if not os.path.exists(p):
-            raise FileNotFoundError(f"File not found: {p}")
+            raise FileNotFoundError(f"[ERROR] File tidak ditemukan: {p}")
 
     X_train = pd.read_csv(X_train_path)
     X_test  = pd.read_csv(X_test_path)
@@ -25,18 +26,33 @@ def load_data():
 
     return X_train, y_train, X_test, y_test
 
-def train_model(X_train, y_train, X_test, y_test):
+def train_basic(X_train, y_train, X_test, y_test):
     mlflow.autolog()
     
-    model = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
+    print("Training model...")
+    model = RandomForestClassifier(
+            n_estimators=100,
+            random_state=42,
+            n_jobs=-1
+        )
     model.fit(X_train, y_train)
 
     y_pred = model.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
-    print(f"Accuracy: {acc}")
+    print(f"[INFO] Accuracy: {acc:.4f}")
 
     mlflow.sklearn.log_model(model, "model")
+    
+    run = mlflow.last_active_run()
+    if run is not None:
+        run_id = run.info.run_id
+        print(f"[INFO] Run ID detected: {run_id}")
+        
+        with open("run_id.txt", "w") as f:
+            f.write(run_id)
+    else:
+        print("[WARNING] Tidak ada run aktif yang terdeteksi!")
 
 if __name__ == "__main__":
     X_train, y_train, X_test, y_test = load_data()
-    train_model(X_train, y_train, X_test, y_test)
+    train_basic(X_train, y_train, X_test, y_test)
