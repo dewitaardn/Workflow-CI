@@ -39,4 +39,5 @@ def train_basic(X_train, y_train, X_test, y_test):
             f.write(run_id)
 
 if __name__ == "__main__":
-    train_basic()
+    X_train, y_train, X_test, y_test = load_data()
+    train_basic(X_train, y_train, X_test, y_test)
