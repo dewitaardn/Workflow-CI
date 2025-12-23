@@ -10,27 +10,28 @@ def load_data():
     data_dir = os.path.join(base_dir, "heartDisease_preprocessing")
 
     X_train_path = os.path.join(data_dir, "X_train.csv")
-    X_test_path = os.path.join(data_dir, "X_test.csv")
-    y_train_path = os.path.join(data_dir, "y_train.csv")
-    y_test_path = os.path.join(data_dir, "y_test.csv")
+    X_test_path  = os.path.join(data_dir, "X_test.csv")
+    y_train_path = os.path.join(data_dir, "y_train.csv") 
+    y_test_path  = os.path.join(data_dir, "y_test.csv")
 
     for p in [X_train_path, X_test_path, y_train_path, y_test_path]:
         if not os.path.exists(p):
-            raise FileNotFoundError(p)
+            raise FileNotFoundError(f"[ERROR] File tidak ditemukan: {p}")
 
     X_train = pd.read_csv(X_train_path)
-    X_test = pd.read_csv(X_test_path)
+    X_test  = pd.read_csv(X_test_path)
     y_train = pd.read_csv(y_train_path).values.ravel()
-    y_test = pd.read_csv(y_test_path).values.ravel()
+    y_test  = pd.read_csv(y_test_path).values.ravel()
 
     return X_train, y_train, X_test, y_test
 
 def train_basic(X_train, y_train, X_test, y_test):
     mlflow.autolog()
-
     print("Training model...")
 
-    with mlflow.start_run() as run:
+    active_run = mlflow.active_run()
+    
+    with mlflow.start_run(run_id=active_run.info.run_id if active_run else None, nested=True) as run:
         model = RandomForestClassifier(
             n_estimators=100,
             random_state=42,
@@ -40,11 +41,13 @@ def train_basic(X_train, y_train, X_test, y_test):
 
         y_pred = model.predict(X_test)
         acc = accuracy_score(y_test, y_pred)
-        print(f"Accuracy: {acc:.4f}")
+        print(f"[INFO] Accuracy: {acc:.4f}")
 
+        # Ambil Run ID
         run_id = run.info.run_id
-        print(f"Run ID detected: {run_id}")
-
+        print(f"[INFO] Run ID detected: {run_id}")
+        
+        # Simpan ke file untuk CI/CD
         with open("run_id.txt", "w") as f:
             f.write(run_id)
 
