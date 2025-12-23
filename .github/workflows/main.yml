@@ -32,7 +32,8 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Train Model
-        run: python MLProject/modelling.py
+        run: |
+          mlflow run ./MLProject --env-manager=local --entry-point main
 
       - name: Build Docker Image using MLflow
         run: |
