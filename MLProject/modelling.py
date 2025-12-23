@@ -26,16 +26,15 @@ def train_basic():
     acc = accuracy_score(y_test, y_pred)
     print(f"[INFO] Accuracy: {acc:.4f}")
 
-    # Mengambil ID dari run yang aktif saat ini
-    active_run = mlflow.active_run()
-    if active_run:
-        run_id = active_run.info.run_id
-    else:
-        run_id = mlflow.last_active_run().info.run_id
-
+    # Mengambil ID dari run yang dibuat oleh mlflow run
+    run = mlflow.active_run()
+    if not run:
+        run = mlflow.last_active_run()
+        
+    run_id = run.info.run_id
     print(f"[INFO] Run ID detected: {run_id}")
     
-    # File ini akan tercipta di dalam folder MLProject/
+    # Menulis run_id.txt (akan muncul di folder MLProject/)
     with open("run_id.txt", "w") as f:
         f.write(run_id)
 
