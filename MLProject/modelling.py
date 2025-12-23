@@ -8,49 +8,36 @@ from sklearn.metrics import accuracy_score
 def load_data():
     base_dir = os.path.dirname(os.path.abspath(__file__))
     data_dir = os.path.join(base_dir, "heartDisease_preprocessing")
-
-    X_train_path = os.path.join(data_dir, "X_train.csv")
-    X_test_path  = os.path.join(data_dir, "X_test.csv")
-    y_train_path = os.path.join(data_dir, "y_train.csv") 
-    y_test_path  = os.path.join(data_dir, "y_test.csv")
-
-    for p in [X_train_path, X_test_path, y_train_path, y_test_path]:
-        if not os.path.exists(p):
-            raise FileNotFoundError(f"[ERROR] File tidak ditemukan: {p}")
-
-    X_train = pd.read_csv(X_train_path)
-    X_test  = pd.read_csv(X_test_path)
-    y_train = pd.read_csv(y_train_path).values.ravel()
-    y_test  = pd.read_csv(y_test_path).values.ravel()
-
+    X_train = pd.read_csv(os.path.join(data_dir, "X_train.csv"))
+    X_test  = pd.read_csv(os.path.join(data_dir, "X_test.csv"))
+    y_train = pd.read_csv(os.path.join(data_dir, "y_train.csv")).values.ravel()
+    y_test  = pd.read_csv(os.path.join(data_dir, "y_test.csv")).values.ravel()
     return X_train, y_train, X_test, y_test
 
-def train_basic(X_train, y_train, X_test, y_test):
+def train_basic():
     mlflow.autolog()
+    X_train, y_train, X_test, y_test = load_data()
+
     print("Training model...")
+    model = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
+    model.fit(X_train, y_train)
 
+    y_pred = model.predict(X_test)
+    acc = accuracy_score(y_test, y_pred)
+    print(f"[INFO] Accuracy: {acc:.4f}")
+
+    # Mengambil ID dari run yang aktif saat ini
     active_run = mlflow.active_run()
+    if active_run:
+        run_id = active_run.info.run_id
+    else:
+        run_id = mlflow.last_active_run().info.run_id
+
+    print(f"[INFO] Run ID detected: {run_id}")
     
-    with mlflow.start_run(run_id=active_run.info.run_id if active_run else None, nested=True) as run:
-        model = RandomForestClassifier(
-            n_estimators=100,
-            random_state=42,
-            n_jobs=-1
-        )
-        model.fit(X_train, y_train)
-
-        y_pred = model.predict(X_test)
-        acc = accuracy_score(y_test, y_pred)
-        print(f"[INFO] Accuracy: {acc:.4f}")
-
-        # Ambil Run ID
-        run_id = run.info.run_id
-        print(f"[INFO] Run ID detected: {run_id}")
-        
-        # Simpan ke file untuk CI/CD
-        with open("run_id.txt", "w") as f:
-            f.write(run_id)
+    # File ini akan tercipta di dalam folder MLProject/
+    with open("run_id.txt", "w") as f:
+        f.write(run_id)
 
 if __name__ == "__main__":
-    X_train, y_train, X_test, y_test = load_data()
-    train_basic(X_train, y_train, X_test, y_test)
+    train_basic()

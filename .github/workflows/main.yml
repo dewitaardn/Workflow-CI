@@ -35,12 +35,17 @@ jobs:
         run: |
           mlflow run ./MLProject --env-manager=local
 
-      - name: Build Docker Image using MLflow
+- name: Build Docker Image using MLflow
         run: |
-          ls -l MLProject/
-          RUN_ID=$(cat MLProject/run_id.txt)
-          echo "Using Run ID: $RUN_ID"
-          mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "$DOCKER_IMAGE_NAME:latest"
+          if [ -f "MLProject/run_id.txt" ]; then
+            RUN_ID=$(cat MLProject/run_id.txt)
+            echo "Using Run ID: $RUN_ID"
+            mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "$DOCKER_IMAGE_NAME:latest"
+          else
+            echo "ERROR: run_id.txt tidak ditemukan di MLProject/"
+            ls -R
+            exit 1
+          fi
 
       - name: Push Image to Docker Hub
         run: |
