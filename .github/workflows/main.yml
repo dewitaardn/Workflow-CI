@@ -33,14 +33,25 @@ jobs:
 
       - name: Train Model
         run: |
+          # Memaksa MLflow menggunakan satu database SQLite yang konsisten
+          export MLFLOW_TRACKING_URI="sqlite:///mlflow.db"
           mlflow run ./MLProject --env-manager=local
 
       - name: Build Docker Image using MLflow
         run: |
+          # Gunakan URI database yang sama untuk mencari model
+          export MLFLOW_TRACKING_URI="sqlite:///mlflow.db"
+          
           # Membaca Run ID dari file yang dihasilkan di dalam folder MLProject
-          RUN_ID=$(cat MLProject/run_id.txt)
-          echo "Using Run ID: $RUN_ID"
-          mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "$DOCKER_IMAGE_NAME:latest"
+          if [ -f "MLProject/run_id.txt" ]; then
+            RUN_ID=$(cat MLProject/run_id.txt)
+            echo "Successfully found Run ID: $RUN_ID"
+            mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "$DOCKER_IMAGE_NAME:latest"
+          else
+            echo "Error: MLProject/run_id.txt tidak ditemukan!"
+            ls -R
+            exit 1
+          fi
 
       - name: Push Image to Docker Hub
         run: |
