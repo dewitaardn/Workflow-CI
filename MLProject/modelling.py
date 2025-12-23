@@ -16,6 +16,7 @@ def load_data():
 
 def train_basic():
     mlflow.autolog()
+    
     X_train, y_train, X_test, y_test = load_data()
 
     print("Training model...")
@@ -26,17 +27,26 @@ def train_basic():
     acc = accuracy_score(y_test, y_pred)
     print(f"[INFO] Accuracy: {acc:.4f}")
 
-    # Mengambil ID dari run yang dibuat oleh mlflow run
-    run = mlflow.active_run()
-    if not run:
-        run = mlflow.last_active_run()
-        
-    run_id = run.info.run_id
-    print(f"[INFO] Run ID detected: {run_id}")
+    run_id = None
     
-    # Menulis run_id.txt (akan muncul di folder MLProject/)
-    with open("run_id.txt", "w") as f:
-        f.write(run_id)
+    run_id = os.environ.get("MLFLOW_RUN_ID")
+    
+    if not run_id:
+        active_run = mlflow.active_run()
+        if active_run:
+            run_id = active_run.info.run_id
+            
+    if not run_id:
+        last_run = mlflow.last_active_run()
+        if last_run:
+            run_id = last_run.info.run_id
+
+    if run_id:
+        print(f"[INFO] Run ID detected: {run_id}")
+        with open("run_id.txt", "w") as f:
+            f.write(run_id)
+    else:
+        raise RuntimeError("Gagal mendapatkan Run ID dari MLflow session!")
 
 if __name__ == "__main__":
     train_basic()
