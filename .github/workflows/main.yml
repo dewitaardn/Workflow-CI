@@ -33,13 +33,13 @@ jobs:
 
       - name: Train Model
         run: |
-          mlflow run ./MLProject --env-manager=local --entry-point main
+          mlflow run ./MLProject --env-manager=local
 
       - name: Build Docker Image using MLflow
         run: |
-          RUN_ID=$(cat run_id.txt)
-          echo "Menggunakan Run ID dari file: $RUN_ID"
-          
+          ls -l MLProject/
+          RUN_ID=$(cat MLProject/run_id.txt)
+          echo "Using Run ID: $RUN_ID"
           mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "$DOCKER_IMAGE_NAME:latest"
 
       - name: Push Image to Docker Hub
