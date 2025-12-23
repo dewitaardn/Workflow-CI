@@ -15,36 +15,28 @@ def load_data():
     y_test  = pd.read_csv(os.path.join(data_dir, "y_test.csv")).values.ravel()
     return X_train, y_train, X_test, y_test
 
-def train_basic():
-    tracking_uri = os.environ.get("MLFLOW_TRACKING_URI")
-    if tracking_uri:
-        mlflow.set_tracking_uri(tracking_uri)
-    
+def train_basic(X_train, y_train, X_test, y_test):
     mlflow.autolog()
-    X_train, y_train, X_test, y_test = load_data()
 
     print("Training model...")
-    model = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
-    model.fit(X_train, y_train)
 
-    time.sleep(5)
+    with mlflow.start_run() as run:
+        model = RandomForestClassifier(
+            n_estimators=100,
+            random_state=42,
+            n_jobs=-1
+        )
+        model.fit(X_train, y_train)
 
-    run_id = os.environ.get("MLFLOW_RUN_ID")
+        y_pred = model.predict(X_test)
+        acc = accuracy_score(y_test, y_pred)
+        print(f"Accuracy: {acc:.4f}")
 
-    if not run_id:
-        for _ in range(3):
-            active_run = mlflow.active_run()
-            if active_run:
-                run_id = active_run.info.run_id
-                break
-            time.sleep(2)
+        run_id = run.info.run_id
+        print(f"Run ID detected: {run_id}")
 
-    if run_id:
-        print(f"[INFO] Run ID detected: {run_id}")
         with open("run_id.txt", "w") as f:
             f.write(run_id)
-    else:
-        raise RuntimeError("Gagal mendapatkan Run ID untuk workflow CI.")
 
 if __name__ == "__main__":
     train_basic()
